@@ -85,6 +85,23 @@ npm run dev      # Local development
 npm run deploy   # Deploy to Cloudflare
 ```
 
+### Upstream Sync
+
+This repository is connected to BlackRoad-Private upstream for enhanced features:
+
+```bash
+# Fetch latest changes from upstream
+git fetch upstream
+
+# Merge upstream changes into your branch
+git merge upstream/main
+
+# View upstream branches
+git branch -r | grep upstream
+```
+
+The upstream remote is configured as: `https://github.com/BlackRoad-OS/blackroad-audit-private`
+
 ## License
 
 Proprietary - BlackRoad OS, Inc.
