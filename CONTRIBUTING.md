@@ -4,6 +4,16 @@
 
 This repository is connected to BlackRoad-Private upstream for enhanced features and internal development.
 
+### Initial Setup
+
+After cloning the repository, run the setup script to configure the upstream remote:
+
+```bash
+bash scripts/setup-upstream.sh
+```
+
+This script will automatically configure the upstream remote if it doesn't already exist.
+
 ### Git Remotes
 
 - **origin**: `https://github.com/BlackRoad-OS/blackroad-audit` (public repository)

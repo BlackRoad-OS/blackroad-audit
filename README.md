@@ -87,8 +87,14 @@ npm run deploy   # Deploy to Cloudflare
 
 ### Upstream Sync
 
-This repository is connected to BlackRoad-Private upstream for enhanced features:
+This repository is connected to BlackRoad-Private upstream for enhanced features.
 
+**First-time setup**: Run the setup script to configure the upstream remote:
+```bash
+bash scripts/setup-upstream.sh
+```
+
+**Syncing with upstream**:
 ```bash
 # Fetch latest changes from upstream
 git fetch upstream
@@ -100,7 +106,7 @@ git merge upstream/main
 git branch -r | grep upstream
 ```
 
-The upstream remote is configured as: `https://github.com/BlackRoad-OS/blackroad-audit-private`
+The upstream remote points to: `https://github.com/BlackRoad-OS/blackroad-audit-private`
 
 ## License
 
