@@ -251,28 +251,57 @@ const dashboardHTML = `<!DOCTYPE html>
       \`).join('');
 
       const pages = Math.ceil(logs.length / perPage);
-      document.getElementById('pagination').innerHTML = Array.from({length: Math.min(pages, 5)}, (_, i) =>
-        \`<button class="\${i + 1 === currentPage ? 'active' : ''}" onclick="goToPage(\${i + 1})">\${i + 1}</button>\`
-      ).join('');
+      const btns = [];
+      for (let i = 1; i <= pages; i++) {
+        if (i === 1 || i === pages || (i >= currentPage - 2 && i <= currentPage + 2)) {
+          btns.push(\`<button class="\${i === currentPage ? 'active' : ''}" onclick="goToPage(\${i})">\${i}</button>\`);
+        } else if (btns[btns.length - 1] !== '<span style="color:#666;padding:8px 4px">…</span>') {
+          btns.push('<span style="color:#666;padding:8px 4px">…</span>');
+        }
+      }
+      document.getElementById('pagination').innerHTML = btns.join('');
     }
 
-    function filterLogs() {
+    const TIME_MS = { '1h': 3600000, '24h': 86400000, '7d': 604800000, '30d': 2592000000 };
+
+    function getFilteredLogs() {
       const search = document.getElementById('search').value.toLowerCase();
       const status = document.getElementById('status-filter').value;
       const actor = document.getElementById('actor-filter').value;
-      let filtered = allLogs.filter(l => {
+      const time = document.getElementById('time-filter').value;
+      const cutoff = TIME_MS[time] ? Date.now() - TIME_MS[time] : 0;
+      return allLogs.filter(l => {
         if (search && !l.action.toLowerCase().includes(search)) return false;
         if (status && l.status !== status) return false;
         if (actor && l.actor.type !== actor) return false;
+        if (cutoff && new Date(l.timestamp).getTime() < cutoff) return false;
         return true;
       });
+    }
+
+    function filterLogs() {
+      const filtered = getFilteredLogs();
       currentPage = 1;
       updateStats(filtered);
       renderLogs(filtered);
     }
 
-    function goToPage(page) { currentPage = page; filterLogs(); }
-    function exportLogs() { alert('Exporting logs as CSV...'); }
+    function goToPage(page) { currentPage = page; renderLogs(getFilteredLogs()); }
+
+    function exportLogs() {
+      const filtered = getFilteredLogs();
+      const headers = ['id','timestamp','actor_id','actor_email','actor_type','action','resource_type','resource_id','status','duration_ms','ip'];
+      const esc = v => '"' + String(v).replace(/"/g, '""') + '"';
+      const rows = filtered.map(l => [l.id,l.timestamp,l.actor.id,l.actor.email,l.actor.type,l.action,l.resource.type,l.resource.id,l.status,l.duration,l.ip].map(esc).join(','));
+      const csv = [headers.join(','), ...rows].join('\n');
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = \`audit-logs-\${new Date().toISOString().slice(0, 10)}.csv\`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
     loadLogs();
   </script>
 </body>
